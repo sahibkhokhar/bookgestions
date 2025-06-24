@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+.vscode
+Dockerfile
+.dockerignore
+pnpm-lock.yaml*
+*.log
+dist
+tmp
+.cache 
