@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  bookgestions:
+    image: ghcr.io/sahibkhokhar/bookgestions:latest
+    container_name: bookgestions-app
+    restart: unless-stopped
+    ports:
+      - "3020:3000"
+    env_file:
+      - ./.env
+
+secrets:
+  openai_api_key:
+    file: ./.openai_api_key
+
+networks:
+  default:
+    name: bookgestions-net 

@@ -23,9 +23,12 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy the rest of the source code
 COPY . .
 
+# Pass build-time arguments
+ARG OPENAI_API_KEY
+ENV OPENAI_API_KEY=$OPENAI_API_KEY
+
 # Build the Next.js application
-RUN --mount=type=secret,id=OPENAI_API_KEY \
-    /bin/sh -c "export OPENAI_API_KEY=$(cat /run/secrets/OPENAI_API_KEY) && pnpm build"
+RUN pnpm build
 
 # ---------- Production stage ----------
 FROM node:20-alpine AS runner
