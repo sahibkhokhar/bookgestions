@@ -23,6 +23,10 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy the rest of the source code
 COPY . .
 
+# Pass build-time arguments
+ARG OPENAI_API_KEY
+ENV OPENAI_API_KEY=$OPENAI_API_KEY
+
 # Build the Next.js application
 RUN pnpm build
 

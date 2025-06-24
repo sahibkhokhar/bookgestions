@@ -38,5 +38,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/bookgestions:latest
+          build-args: |
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
           cache-from: type=gha
           cache-to: type=gha,mode=max 
