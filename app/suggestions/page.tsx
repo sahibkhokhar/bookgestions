@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { BookOpen, ArrowLeft, Sparkles } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -10,7 +10,7 @@ import BookCard from '@/components/BookCard';
 import BookPreview from '@/components/BookPreview';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
-export default function SuggestionsPage() {
+function SuggestionsPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { status } = useSession();
@@ -216,5 +216,13 @@ export default function SuggestionsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SuggestionsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><LoadingSpinner /></div>}>
+      <SuggestionsPageInner />
+    </Suspense>
   );
 } 
