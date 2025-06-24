@@ -4,7 +4,6 @@ node_modules
 .vscode
 Dockerfile
 .dockerignore
-pnpm-lock.yaml*
 *.log
 dist
 tmp
