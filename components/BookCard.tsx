@@ -18,6 +18,7 @@ interface BookCardProps {
   overlayRemove?: boolean;
   onToggleRead?: () => void;
   owned?: boolean;
+  extraAction?: React.ReactNode;
 }
 
 export default function BookCard({
@@ -33,11 +34,12 @@ export default function BookCard({
   overlayRemove = false,
   onToggleRead,
   owned = false,
+  extraAction,
 }: BookCardProps) {
   const sizeClasses = {
-    small: 'w-full max-w-xs',
-    medium: 'w-full max-w-sm',
-    large: 'w-full max-w-md',
+    small: 'w-full',
+    medium: 'w-full',
+    large: 'w-full',
   };
 
   const imageClasses = {
@@ -97,30 +99,40 @@ export default function BookCard({
         </button>
       )}
 
-      {read !== undefined && (
-        onToggleRead ? (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleRead();
-            }}
-            className={`absolute bottom-2 right-2 text-xs font-semibold px-2 py-1 rounded-full focus:outline-none ${
-              read ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-yellow-600 hover:bg-yellow-700 text-white'
-            }`}
-            title="Toggle read status"
-          >
-            {read ? 'Read' : 'Unread'}
-          </button>
-        ) : (
-          <span
-            className={`absolute bottom-2 right-2 text-xs font-semibold px-2 py-1 rounded-full ${
-              read ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'
-            }`}
-          >
-            {read ? 'Read' : 'Unread'}
-          </span>
-        )
+      {/* Bottom-right controls */}
+      {(read !== undefined || extraAction) && (
+        <div className="absolute bottom-2 right-2 flex items-center gap-2 flex-row-reverse">
+          {/* Read/Unread badge */}
+          {read !== undefined && (
+            onToggleRead ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleRead();
+                }}
+                className={`text-xs font-semibold px-2 py-1 rounded-full focus:outline-none ${
+                  read ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                }`}
+                title="Toggle read status"
+              >
+                {read ? 'Read' : 'Unread'}
+              </button>
+            ) : (
+              <span
+                className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                  read ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'
+                }`}
+              >
+                {read ? 'Read' : 'Unread'}
+              </span>
+            )
+          )}
+
+          {/* Extra action */}
+          {extraAction}
+        </div>
       )}
+
       <div className="p-4">
         <div className="flex space-x-4">
           {/* Book Cover */}

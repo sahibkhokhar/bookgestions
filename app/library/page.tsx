@@ -1,15 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, BookOpen } from 'lucide-react';
+import { Search, BookOpen, Plus, Check, X } from 'lucide-react';
 import AppHeader from '@/components/AppHeader';
 import { useBookSearch } from '@/hooks/useBookSearch';
-import { BookDetails, LibraryEntry } from '@/types';
+import { BookDetails, LibraryEntry, WantToReadEntry } from '@/types';
 import BookCard from '@/components/BookCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { LibraryAPI } from '@/lib/api';
+import { LibraryAPI, WantToReadAPI } from '@/lib/api';
 import { useSession, signIn } from 'next-auth/react';
-import { WantToReadAPI } from '@/lib/api';
 
 export default function LibraryPage() {
   const { data: session, status } = useSession();
@@ -19,10 +18,12 @@ export default function LibraryPage() {
   const [defaultRead, setDefaultRead] = useState<boolean>(false);
   const [filter, setFilter] = useState<'all' | 'read' | 'unread'>('all');
   const [librarySearch, setLibrarySearch] = useState('');
+  const [wantList, setWantList] = useState<WantToReadEntry[]>([]);
 
   useEffect(() => {
     if (status === 'authenticated') {
       fetchLibrary();
+      WantToReadAPI.getList().then(setWantList).catch(console.error);
     }
   }, [status]);
 
@@ -39,7 +40,28 @@ export default function LibraryPage() {
   };
 
   const handleAddWant = async (book: BookDetails) => {
-    await WantToReadAPI.add(book);
+    const success = await WantToReadAPI.add(book);
+    if (success) {
+      setWantList((prev) => {
+        if (prev.some((e) => e.key === book.key)) return prev;
+        return [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            key: book.key,
+            title: book.title,
+            authors: book.authors.join(', '),
+            coverUrl: book.coverUrl,
+            createdAt: new Date().toISOString(),
+          },
+        ];
+      });
+    }
+  };
+
+  const handleRemoveWant = async (key: string) => {
+    await WantToReadAPI.delete(key);
+    setWantList((prev) => prev.filter((e) => e.key !== key));
   };
 
   const toggleReadStatus = async (entry: LibraryEntry) => {
@@ -54,6 +76,8 @@ export default function LibraryPage() {
     await LibraryAPI.deleteFromLibrary(entry.key);
     setLibrary((prev) => prev.filter((e) => e.key !== entry.key));
   };
+
+  const isInWantList = (key: string) => wantList.some((e) => e.key === key);
 
   if (status === 'loading') {
     return (
@@ -82,7 +106,7 @@ export default function LibraryPage() {
       <AppHeader />
       <div className="flex flex-col lg:flex-row flex-1">
         {/* Left: Search */}
-        <div className="w-full lg:w-1/2 border-r border-gray-700 p-6 flex flex-col">
+        <div className="w-full lg:w-1/3 border-r border-gray-700 p-6 flex flex-col">
           <h2 className="text-2xl font-semibold text-white mb-4 flex items-center space-x-2">
             <Search className="w-6 h-6" />
             <span>Search & Add Books</span>
@@ -135,6 +159,8 @@ export default function LibraryPage() {
                     book={book}
                     onAdd={handleAddBook}
                     showAddButton
+                    owned={library.some((e) => e.key === book.key)}
+                    isSelected={library.some((e) => e.key === book.key)}
                     size="small"
                   />
                 ))}
@@ -144,7 +170,7 @@ export default function LibraryPage() {
         </div>
 
         {/* Right: Library */}
-        <div className="w-full lg:w-1/2 p-6 flex flex-col">
+        <div className="w-full lg:w-2/3 p-6 flex flex-col">
           <h2 className="text-2xl font-semibold text-white mb-4 flex items-center space-x-2">
             <BookOpen className="w-6 h-6" />
             <span>Your Library ({library.length})</span>
@@ -205,24 +231,57 @@ export default function LibraryPage() {
                     );
                   })
                   .sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }))
-                  .map((entry) => (
-                    <BookCard
-                      key={entry.id}
-                      book={{
-                        key: entry.key,
-                        title: entry.title,
-                        authors: entry.authors.split(',').map((a) => a.trim()),
-                        coverUrl: entry.coverUrl,
-                      } as BookDetails}
-                      size="small"
-                      read={entry.read}
-                      onRemove={() => removeEntry(entry)}
-                      overlayRemove
-                      onToggleRead={() => toggleReadStatus(entry)}
-                      onAdd={handleAddWant}
-                      showAddButton
-                    />
-                  ))}
+                  .map((entry) => {
+                    const inWant = isInWantList(entry.key);
+                    return (
+                      <BookCard
+                        key={entry.key}
+                        book={{
+                          key: entry.key,
+                          title: entry.title,
+                          authors: entry.authors.split(',').map((a) => a.trim()),
+                          coverUrl: entry.coverUrl,
+                        } as BookDetails}
+                        size="small"
+                        read={entry.read}
+                        onRemove={() => removeEntry(entry)}
+                        overlayRemove
+                        onToggleRead={() => toggleReadStatus(entry)}
+                        extraAction={
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (inWant) {
+                                handleRemoveWant(entry.key);
+                              } else {
+                                handleAddWant({
+                                  key: entry.key,
+                                  title: entry.title,
+                                  authors: entry.authors.split(',').map((a) => a.trim()),
+                                  coverUrl: entry.coverUrl,
+                                } as BookDetails);
+                              }
+                            }}
+                            title={inWant ? 'Remove from Want to Read' : 'Add to Want to Read'}
+                            className={`w-6 h-6 rounded-full flex items-center justify-center text-white group ${
+                              inWant
+                                ? 'bg-green-600 hover:bg-red-600'
+                                : 'bg-primary-600 hover:bg-primary-700'
+                            }`}
+                          >
+                            {inWant ? (
+                              <>
+                                <Check className="w-4 h-4 group-hover:hidden" />
+                                <X className="w-4 h-4 hidden group-hover:block" />
+                              </>
+                            ) : (
+                              <Plus className="w-4 h-4" />
+                            )}
+                          </button>
+                        }
+                      />
+                    );
+                  })}
               </div>
             )}
           </div>

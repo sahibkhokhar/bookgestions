@@ -166,22 +166,21 @@ export default function WantToReadPage() {
                   .map((entry) => {
                     const owned = isOwned(entry.key);
                     return (
-                      <div key={entry.id} className="relative">
-                        <BookCard
-                          book={{
-                            key: entry.key,
-                            title: entry.title,
-                            authors: entry.authors.split(',').map((a) => a.trim()),
-                            coverUrl: entry.coverUrl,
-                          } as BookDetails}
-                          size="small"
-                          onRemove={() => removeEntry(entry)}
-                          overlayRemove
-                        />
-                        {owned && (
-                          <BookOpen className="w-5 h-5 text-blue-500 absolute bottom-2 right-2" />
-                        )}
-                      </div>
+                      <BookCard
+                        key={entry.id}
+                        book={{
+                          key: entry.key,
+                          title: entry.title,
+                          authors: entry.authors.split(',').map((a) => a.trim()),
+                          coverUrl: entry.coverUrl,
+                        } as BookDetails}
+                        size="small"
+                        onRemove={() => removeEntry(entry)}
+                        overlayRemove
+                        extraAction={owned ? (
+                          <BookOpen className="w-5 h-5 text-blue-500" />
+                        ) : undefined}
+                      />
                     );
                   })}
               </div>
