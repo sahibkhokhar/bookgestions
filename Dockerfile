@@ -1,4 +1,4 @@
-FROM node:20-alpine AS deps
+FROM node:20-slim AS deps
 
 # Enable corepack so we can use pnpm without a global install
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -10,12 +10,10 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod=false
 
 # ---------- Build stage ----------
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN apk add --no-cache openssl-dev libc6-compat
-RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 # Copy installed dependencies
@@ -32,12 +30,11 @@ ENV OPENAI_API_KEY=$OPENAI_API_KEY
 RUN pnpm build
 
 # ---------- Production stage ----------
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Install OpenSSL compatibility and enable pnpm via corepack
-RUN apk add --no-cache openssl-dev libc6-compat
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
