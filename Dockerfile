@@ -14,6 +14,7 @@ FROM node:20-slim AS builder
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+RUN apt-get update -y && apt-get install -y openssl
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
@@ -35,7 +36,8 @@ FROM node:20-slim AS runner
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install OpenSSL compatibility and enable pnpm via corepack
+# Install OpenSSL and enable pnpm via corepack
+RUN apt-get update -y && apt-get install -y openssl
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
