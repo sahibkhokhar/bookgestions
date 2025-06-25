@@ -3,7 +3,7 @@ import { AIRecommendation } from '@/types';
 import OpenAI from 'openai';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/authOptions';
 
 interface BookInput {
   title: string;
