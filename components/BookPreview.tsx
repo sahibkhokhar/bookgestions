@@ -41,10 +41,10 @@ export default function BookPreview({ book }: BookPreviewProps) {
       {/* Book Information */}
       <div className="space-y-4">
         <div>
-          <h2 className="text-2xl font-bold text-white leading-tight mb-2">
+          <h2 className="text-xl font-bold text-white leading-tight mb-2">
             {book.title}
           </h2>
-          <p className="text-lg text-gray-300">
+          <p className="text-base text-gray-300">
             {formatAuthors(book.authors)}
           </p>
         </div>

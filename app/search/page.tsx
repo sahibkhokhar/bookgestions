@@ -97,7 +97,7 @@ export default function SearchPage() {
                 No books found for "{query}"
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {results.map((book) => (
                   <BookCard
                     key={book.key}
@@ -137,7 +137,7 @@ export default function SearchPage() {
                 <p className="text-sm mt-2">Search and add books to get started</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {selectedBooks.map((book) => (
                   <BookCard
                     key={book.key}

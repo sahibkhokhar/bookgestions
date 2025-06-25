@@ -2,13 +2,15 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { BookOpen, ArrowLeft, Sparkles } from 'lucide-react';
+import { BookOpen, ArrowLeft, Sparkles, ChevronDown, ChevronRight } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { BookDetails, LibraryEntry } from '@/types';
 import { AIService, BookAPI, LibraryAPI } from '@/lib/api';
 import BookCard from '@/components/BookCard';
 import BookPreview from '@/components/BookPreview';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import Image from 'next/image';
+import { truncateText, formatAuthors } from '@/lib/utils';
 
 function SuggestionsPageInner() {
   const searchParams = useSearchParams();
@@ -20,6 +22,7 @@ function SuggestionsPageInner() {
   const [library, setLibrary] = useState<LibraryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showYourBooks, setShowYourBooks] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -150,7 +153,7 @@ function SuggestionsPageInner() {
              {/* Main Content - Two Column Layout (Responsive) */}
        <div className="flex flex-col lg:flex-row h-[calc(100vh-80px)]">
          {/* Left Column: Detailed Preview */}
-         <div className="w-full lg:w-2/3 border-r-0 lg:border-r border-gray-700 border-b lg:border-b-0 flex flex-col">
+         <div className="w-full lg:w-3/5 border-r-0 lg:border-r border-gray-700 border-b lg:border-b-0 flex flex-col">
           <div className="p-6 border-b border-gray-700">
             <h2 className="text-xl font-semibold text-white">Book Details</h2>
           </div>
@@ -170,24 +173,40 @@ function SuggestionsPageInner() {
         </div>
 
                  {/* Right Column: Lists */}
-         <div className="w-full lg:w-1/3 flex flex-col">
+         <div className="w-full lg:w-2/5 flex flex-col">
           {/* Your Books Card */}
           <div className="border-b border-gray-700">
-            <div className="p-4 bg-gray-800">
-              <h3 className="text-lg font-semibold text-white mb-3">Your Books</h3>
-            </div>
-            <div className="max-h-64 overflow-y-auto p-4 space-y-3">
-              {selectedBooks.map((book) => (
-                <BookCard
-                  key={book.key}
-                  book={book}
-                  onPreview={setPreviewBook}
-                  size="small"
-                  owned={isOwned(book.key)}
-                  read={isOwned(book.key) ? getReadStatus(book.key) : undefined}
-                />
-              ))}
-            </div>
+            <button
+              onClick={() => setShowYourBooks((prev) => !prev)}
+              className="w-full p-4 bg-gray-800 flex items-center justify-between focus:outline-none"
+            >
+              <h3 className="text-lg font-semibold text-white">Your Books</h3>
+              {showYourBooks ? (
+                <ChevronDown className="w-5 h-5 text-gray-400" />
+              ) : (
+                <ChevronRight className="w-5 h-5 text-gray-400" />
+              )}
+            </button>
+            {showYourBooks && (
+              <div className="max-h-64 overflow-y-auto p-4">
+                {selectedBooks.length === 0 ? (
+                  <p className="text-center text-gray-500 text-sm">No books selected</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {selectedBooks.map((book) => (
+                      <BookCard
+                        key={book.key}
+                        book={book}
+                        onPreview={setPreviewBook}
+                        size="small"
+                        owned={isOwned(book.key)}
+                        read={isOwned(book.key) ? getReadStatus(book.key) : undefined}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* AI Suggestions Card */}
@@ -212,17 +231,71 @@ function SuggestionsPageInner() {
                   <p className="text-sm mt-2">Please try again later</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {recommendations.map((book) => (
-                    <BookCard
+                    <div
                       key={book.key}
-                      book={book}
-                      onPreview={setPreviewBook}
-                      isSelected={previewBook?.key === book.key}
-                      size="small"
-                      owned={isOwned(book.key)}
-                      read={isOwned(book.key) ? getReadStatus(book.key) : undefined}
-                    />
+                      className={`bg-gray-800 rounded-lg border border-gray-700 p-3 cursor-pointer hover:ring-2 hover:ring-primary-500 transition ${
+                        previewBook?.key === book.key ? 'ring-2 ring-primary-500' : ''
+                      }`}
+                      onClick={() => setPreviewBook(book)}
+                    >
+                      {/* Top: Book info */}
+                      <div className="flex space-x-3">
+                        <div className="w-14 h-20 bg-gray-700 rounded overflow-hidden flex-shrink-0">
+                          {book.coverUrl ? (
+                            <Image
+                              src={book.coverUrl}
+                              alt={`Cover of ${book.title}`}
+                              width={56}
+                              height={80}
+                              unoptimized
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">No Cover</div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-semibold text-white leading-tight">
+                            {truncateText(book.title, 50)}
+                          </h4>
+                          <p className="text-xs text-gray-400 mb-1">
+                            {formatAuthors(book.authors)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Subjects */}
+                      {book.subjects && book.subjects.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {book.subjects.slice(0, 4).map((subject, idx) => (
+                            <span key={idx} className="px-2 py-0.5 bg-gray-700 text-gray-300 text-[10px] rounded-full">
+                              {subject}
+                            </span>
+                          ))}
+                          {book.subjects.length > 4 && (
+                            <span className="px-2 py-0.5 bg-gray-700 text-gray-300 text-[10px] rounded-full">
+                              +{book.subjects.length - 4} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Summary */}
+                      {book.description && (
+                        <p className="text-xs text-gray-400 mt-2">
+                          {truncateText(book.description, 100)}
+                        </p>
+                      )}
+
+                      {/* Why recommended */}
+                      {'reason' in book && book.reason && (
+                        <p className="text-xs italic text-gray-500 mt-2">
+                          {book.reason}
+                        </p>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
