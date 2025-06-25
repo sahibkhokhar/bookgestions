@@ -14,7 +14,7 @@ FROM node:20-alpine AS builder
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN apk add --no-cache openssl1.1-compat
+RUN apk add --no-cache openssl-dev libc6-compat
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
@@ -37,7 +37,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Install OpenSSL compatibility and enable pnpm via corepack
-RUN apk add --no-cache openssl1.1-compat
+RUN apk add --no-cache openssl-dev libc6-compat
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
