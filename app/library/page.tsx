@@ -17,6 +17,7 @@ export default function LibraryPage() {
   const [library, setLibrary] = useState<LibraryEntry[]>([]);
   const [defaultRead, setDefaultRead] = useState<boolean>(false);
   const [filter, setFilter] = useState<'all' | 'read' | 'unread'>('all');
+  const [librarySearch, setLibrarySearch] = useState('');
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -144,6 +145,18 @@ export default function LibraryPage() {
             <span>Your Library ({library.length})</span>
           </h2>
 
+          {/* Library search bar */}
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search your library by title or author..."
+              value={librarySearch}
+              onChange={(e) => setLibrarySearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+          </div>
+
           {/* Filter buttons */}
           <div className="flex items-center space-x-2 mb-4">
             {(
@@ -178,6 +191,15 @@ export default function LibraryPage() {
                     if (filter === 'read') return e.read;
                     return !e.read;
                   })
+                  .filter((entry) => {
+                    const search = librarySearch.trim().toLowerCase();
+                    if (!search) return true;
+                    return (
+                      entry.title.toLowerCase().includes(search) ||
+                      entry.authors.toLowerCase().includes(search)
+                    );
+                  })
+                  .sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }))
                   .map((entry) => (
                     <BookCard
                       key={entry.id}
