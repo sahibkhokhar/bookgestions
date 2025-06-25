@@ -11,7 +11,7 @@ export function transformBookToDetails(book: Book): BookDetails {
     title: book.title,
     authors: book.author_name || [],
     publishYear: book.first_publish_year,
-    coverUrl: book.cover_i 
+    coverUrl: book.cover_i
       ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
       : undefined,
     isbn: book.isbn?.[0],
@@ -45,4 +45,4 @@ export function debounce<T extends (...args: any[]) => any>(
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
   };
-} 
+}

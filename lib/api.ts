@@ -5,7 +5,7 @@ import { transformBookToDetails } from './utils';
 const OPENLIBRARY_BASE_URL = 'https://openlibrary.org';
 
 export class BookAPI {
-  static async searchBooks(query: string, limit: number = 20): Promise<BookDetails[]> {
+  static async searchBooks(query: string, limit: number = 10): Promise<BookDetails[]> {
     try {
       const response = await axios.get<SearchResponse>(`${OPENLIBRARY_BASE_URL}/search.json`, {
         params: {
@@ -27,12 +27,12 @@ export class BookAPI {
     try {
       const response = await axios.get(`${OPENLIBRARY_BASE_URL}${key}.json`);
       const book = response.data;
-      
+
       // Get additional details like description
       let description = '';
       if (book.description) {
-        description = typeof book.description === 'string' 
-          ? book.description 
+        description = typeof book.description === 'string'
+          ? book.description
           : book.description.value || '';
       }
 
@@ -85,10 +85,10 @@ export class AIService {
       });
 
       const recommendations: AIRecommendation[] = response.data.recommendations;
-      
+
       // Search for each recommended book to get full details
       const detailedRecommendations: BookDetails[] = [];
-      
+
       for (const rec of recommendations) {
         try {
           const searchResults = await BookAPI.searchBooks(`${rec.title} ${rec.author}`, 1);
@@ -107,4 +107,4 @@ export class AIService {
       throw new Error('Failed to get recommendations');
     }
   }
-} 
+}

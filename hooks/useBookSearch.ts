@@ -22,9 +22,9 @@ export function useBookSearch() {
       setResults(books);
       setLoading({ isLoading: false });
     } catch (error) {
-      setLoading({ 
-        isLoading: false, 
-        error: 'Failed to search books. Please try again.' 
+      setLoading({
+        isLoading: false,
+        error: 'Failed to search books. Please try again.'
       });
       setResults([]);
     }
@@ -49,4 +49,4 @@ export function useBookSearch() {
     loading,
     updateQuery,
   };
-} 
+}
