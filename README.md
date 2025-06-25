@@ -25,4 +25,4 @@ This project is configured to run as a Docker container, pulling the latest pre-
     docker-compose up -d
     ```
 
-The application will be running at `http://localhost:3020`. 
+The application will be running at `http://localhost:3020`.

@@ -49,4 +49,4 @@ COPY --from=deps /app/node_modules ./node_modules
 EXPOSE 3000
 
 # Start the application
-CMD ["pnpm", "start"] 
+CMD ["pnpm", "start"]

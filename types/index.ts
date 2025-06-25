@@ -47,4 +47,4 @@ export interface UserSelection {
 export interface LoadingState {
   isLoading: boolean;
   error?: string;
-} 
+}
