@@ -2,10 +2,10 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { BookOpen, ArrowLeft, Sparkles, ChevronDown, ChevronRight } from 'lucide-react';
+import { BookOpen, ArrowLeft, Sparkles, ChevronDown, ChevronRight, Plus } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { BookDetails, LibraryEntry } from '@/types';
-import { AIService, BookAPI, LibraryAPI } from '@/lib/api';
+import { AIService, BookAPI, LibraryAPI, WantToReadAPI } from '@/lib/api';
 import BookCard from '@/components/BookCard';
 import BookPreview from '@/components/BookPreview';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -23,6 +23,7 @@ function SuggestionsPageInner() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showYourBooks, setShowYourBooks] = useState(false);
+  const [wantList, setWantList] = useState<string[]>([]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -60,6 +61,10 @@ function SuggestionsPageInner() {
         const libEntries = await LibraryAPI.getLibrary();
         setLibrary(libEntries);
 
+        // Fetch want-to-read list to mark existing entries
+        const wantEntries = await WantToReadAPI.getList();
+        setWantList(wantEntries.map((e) => e.key));
+
         // Get AI recommendations
         const recommendationsData = await AIService.getRecommendations(validBooks);
         setRecommendations(recommendationsData);
@@ -89,6 +94,13 @@ function SuggestionsPageInner() {
 
   // Helper to find read status
   const getReadStatus = (key: string) => library.find((e) => e.key === key)?.read;
+
+  const handleAddWant = async (book: BookDetails) => {
+    const success = await WantToReadAPI.add(book);
+    if (success) {
+      setWantList((prev) => [...prev, book.key]);
+    }
+  };
 
   if (status === 'loading') {
     return (
@@ -235,9 +247,9 @@ function SuggestionsPageInner() {
                   {recommendations.map((book) => (
                     <div
                       key={book.key}
-                      className={`bg-gray-800 rounded-lg border border-gray-700 p-3 cursor-pointer hover:ring-2 hover:ring-primary-500 transition ${
-                        previewBook?.key === book.key ? 'ring-2 ring-primary-500' : ''
-                      }`}
+                      className={`bg-gray-800 rounded-lg border border-gray-700 p-3 cursor-pointer hover:ring-2 hover:ring-inset hover:ring-primary-500 transition ${
+                        previewBook?.key === book.key ? 'ring-2 ring-inset ring-primary-500' : ''
+                      } flex flex-col h-full`}
                       onClick={() => setPreviewBook(book)}
                     >
                       {/* Top: Book info */}
@@ -294,6 +306,26 @@ function SuggestionsPageInner() {
                         <p className="text-xs italic text-gray-500 mt-2">
                           {book.reason}
                         </p>
+                      )}
+
+                      <div className="mt-3 flex-1" />
+
+                      {/* Add / In List */}
+                      {wantList.includes(book.key) ? (
+                        <div className="w-full py-1.5 rounded bg-green-600 text-white text-xs text-center">
+                          In Want&nbsp;to&nbsp;Read
+                        </div>
+                      ) : (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddWant(book);
+                          }}
+                          className="w-full py-1.5 rounded bg-primary-600 hover:bg-primary-700 text-white text-xs flex items-center justify-center space-x-1"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Add to Want&nbsp;to&nbsp;Read</span>
+                        </button>
                       )}
                     </div>
                   ))}

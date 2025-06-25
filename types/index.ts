@@ -58,3 +58,12 @@ export interface LibraryEntry {
   read: boolean;
   createdAt: string;
 }
+
+export interface WantToReadEntry {
+  id: string;
+  key: string;
+  title: string;
+  authors: string;
+  coverUrl?: string;
+  createdAt: string;
+}

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Book, SearchResponse, BookDetails, AIRecommendation, LibraryEntry } from '@/types';
+import { Book, SearchResponse, BookDetails, AIRecommendation, LibraryEntry, WantToReadEntry } from '@/types';
 import { transformBookToDetails } from './utils';
 
 const OPENLIBRARY_BASE_URL = 'https://openlibrary.org';
@@ -143,6 +143,36 @@ export class LibraryAPI {
       await axios.delete('/api/library', { params: { key } });
     } catch (err) {
       console.error('Failed to delete from library', err);
+    }
+  }
+}
+
+export class WantToReadAPI {
+  static async getList(): Promise<WantToReadEntry[]> {
+    try {
+      const res = await axios.get('/api/wanttoread');
+      return res.data.entries as WantToReadEntry[];
+    } catch (err) {
+      console.error('Failed to fetch want-to-read list', err);
+      return [];
+    }
+  }
+
+  static async add(book: BookDetails): Promise<boolean> {
+    try {
+      await axios.post('/api/wanttoread', { book });
+      return true;
+    } catch (err) {
+      console.error('Failed to add to want-to-read', err);
+      return false;
+    }
+  }
+
+  static async delete(key: string) {
+    try {
+      await axios.delete('/api/wanttoread', { params: { key } });
+    } catch (err) {
+      console.error('Failed to delete from want-to-read', err);
     }
   }
 }

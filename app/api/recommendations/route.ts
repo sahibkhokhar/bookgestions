@@ -68,13 +68,13 @@ ${bookDescriptions}
 
 ${readBooksDescriptions ? `The user has already read the following books. Do not recommend these titles again:\n${readBooksDescriptions}\n` : ''}
 
-Please analyze these books and recommend 5 similar books that this reader would likely enjoy. Consider:
+Please analyze these books and recommend 4 similar books that this reader would likely enjoy. Consider:
 - Similar genres, themes, and writing styles
 - Books frequently recommended together with these titles
 - Current popular books in related categories
 - Literary quality and reader satisfaction
 
-IMPORTANT: You must respond with ONLY a valid JSON array containing exactly 5 objects, each with "title", "author", and "reason" fields (reason should be 1 short sentence). Do not include any other text, explanations, or formatting.
+IMPORTANT: You must respond with ONLY a valid JSON array containing exactly 4 objects, each with "title", "author", and "reason" fields (reason should be 1 short sentence). Do not include any other text, explanations, or formatting.
 
 Example format:
 [

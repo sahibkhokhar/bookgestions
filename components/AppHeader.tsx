@@ -13,6 +13,7 @@ export default function AppHeader() {
   const navItems = [
     { href: '/search', label: 'Search' },
     { href: '/library', label: 'Library' },
+    { href: '/want-to-read', label: 'Want to Read' },
   ];
 
   return (

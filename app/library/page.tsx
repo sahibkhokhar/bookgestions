@@ -9,6 +9,7 @@ import BookCard from '@/components/BookCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { LibraryAPI } from '@/lib/api';
 import { useSession, signIn } from 'next-auth/react';
+import { WantToReadAPI } from '@/lib/api';
 
 export default function LibraryPage() {
   const { data: session, status } = useSession();
@@ -35,6 +36,10 @@ export default function LibraryPage() {
     if (success) {
       fetchLibrary();
     }
+  };
+
+  const handleAddWant = async (book: BookDetails) => {
+    await WantToReadAPI.add(book);
   };
 
   const toggleReadStatus = async (entry: LibraryEntry) => {
@@ -214,6 +219,8 @@ export default function LibraryPage() {
                       onRemove={() => removeEntry(entry)}
                       overlayRemove
                       onToggleRead={() => toggleReadStatus(entry)}
+                      onAdd={handleAddWant}
+                      showAddButton
                     />
                   ))}
               </div>

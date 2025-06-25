@@ -8,11 +8,12 @@ datasource db {
 }
 
 model User {
-  id        String         @id @default(uuid())
-  email     String         @unique
-  name      String?
-  library   LibraryEntry[]
-  createdAt DateTime       @default(now())
+  id              String            @id @default(uuid())
+  email           String            @unique
+  name            String?
+  library         LibraryEntry[]
+  createdAt       DateTime          @default(now())
+  WantToReadEntry WantToReadEntry[]
 }
 
 model LibraryEntry {
@@ -27,4 +28,17 @@ model LibraryEntry {
   createdAt DateTime @default(now())
 
   @@unique([userId, key])
-} 
+}
+
+model WantToReadEntry {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  key       String
+  title     String
+  authors   String
+  coverUrl  String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, key])
+}

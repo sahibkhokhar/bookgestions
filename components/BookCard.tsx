@@ -46,6 +46,10 @@ export default function BookCard({
     large: 'h-48 w-32',
   };
 
+  const cardClasses = `${sizeClasses[size]} bg-gray-800 rounded-lg shadow-lg border border-gray-700 book-card cursor-pointer ${
+    isSelected ? 'ring-2 ring-inset ring-primary-500' : ''
+  }`;
+
   const handleClick = () => {
     if (onPreview) {
       onPreview(book);
@@ -68,9 +72,7 @@ export default function BookCard({
 
   return (
     <div
-      className={`${sizeClasses[size]} bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden book-card cursor-pointer ${
-        isSelected ? 'ring-2 ring-primary-500' : ''
-      }`}
+      className={cardClasses}
       onClick={handleClick}
       style={{ position: 'relative' }}
     >
