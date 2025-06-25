@@ -41,21 +41,17 @@ RUN apt-get update -y && apt-get install -y openssl
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
-# Copy necessary files from build stage
+# Copy all built artifacts and code
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/pnpm-lock.yaml ./
-
-# Copy full node_modules (includes generated Prisma client) from builder stage
+COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules ./node_modules
 
-# Optionally prune devDependencies for a leaner image
-RUN pnpm prune --prod
-
-# Copy Prisma schema and migrations
-COPY --from=builder /app/prisma ./prisma
+# (Re-)generate Prisma client in the final image
+RUN npx prisma generate --schema=prisma/schema.prisma
 
 EXPOSE 3000
 
-# Run database migrations, then start the app
-CMD ["sh", "-c", "npx prisma migrate deploy --schema=/app/prisma/schema.prisma && pnpm start"]
+# Run migrations and start the app
+CMD ["sh", "-c", "npx prisma migrate deploy --schema=prisma/schema.prisma && pnpm start"]
