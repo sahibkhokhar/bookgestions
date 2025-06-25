@@ -44,6 +44,7 @@ WORKDIR /app
 # Copy necessary files from build stage
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/pnpm-lock.yaml ./
 
 # Reinstall production dependencies and copy the generated Prisma client
 RUN pnpm install --prod --frozen-lockfile
