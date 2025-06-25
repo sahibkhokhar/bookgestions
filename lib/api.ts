@@ -11,7 +11,7 @@ export class BookAPI {
         params: {
           q: query,
           limit,
-          language: 'eng',
+          lang: 'en',
           fields: 'key,title,author_name,first_publish_year,cover_i,isbn,subject,publisher,language',
         },
       });
