@@ -45,8 +45,9 @@ WORKDIR /app
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package.json ./package.json
 
-# Copy node_modules from builder stage, which includes the generated prisma client
-COPY --from=builder /app/node_modules ./node_modules
+# Reinstall production dependencies and copy the generated Prisma client
+RUN pnpm install --prod --frozen-lockfile
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Copy Prisma schema and migrations
 COPY --from=builder /app/prisma ./prisma
