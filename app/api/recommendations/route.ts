@@ -20,7 +20,7 @@ const openai = new OpenAI({
 export async function POST(request: Request) {
   try {
     const body: RequestBody = await request.json();
-    
+
     if (!body.books || !Array.isArray(body.books) || body.books.length === 0) {
       return NextResponse.json(
         { error: 'Invalid or missing books array' },
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     }
 
     // Create a detailed prompt for the AI
-    const bookDescriptions = body.books.map((book, index) => 
+    const bookDescriptions = body.books.map((book, index) =>
       `${index + 1}. "${book.title}" by ${book.authors.join(', ')}${book.publishYear ? ` (${book.publishYear})` : ''}`
     ).join('\n');
 
@@ -103,4 +103,4 @@ Example format:
       { status: 500 }
     );
   }
-} 
+}

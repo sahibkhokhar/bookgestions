@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: 'Bookgestions - AI-Powered Book Recommendations',
   description: 'Discover your next favorite book with AI-powered recommendations based on your reading preferences.',
   keywords: 'books, recommendations, AI, reading, literature',
-  authors: [{ name: 'Bookgestions Team' }],
+  authors: [{ name: 'Sahib Khokhar' }],
 };
 
 export const viewport = {

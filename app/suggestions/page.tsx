@@ -37,13 +37,13 @@ function SuggestionsPageInner() {
         }
 
         const bookKeys = booksParam.split(',');
-        
+
         // Load selected books details
         setLoading(true);
                  const booksPromises = bookKeys.map((key: string) => BookAPI.getBookDetails(key));
          const booksResults = await Promise.all(booksPromises);
          const validBooks = booksResults.filter((book: BookDetails | null): book is BookDetails => book !== null);
-        
+
         if (validBooks.length === 0) {
           setError('Could not load book details. Please try again.');
           setLoading(false);
@@ -55,7 +55,7 @@ function SuggestionsPageInner() {
         // Get AI recommendations
         const recommendations = await AIService.getRecommendations(validBooks);
         setRecommendations(recommendations);
-        
+
         // Set first recommendation as preview
         if (recommendations.length > 0) {
           setPreviewBook(recommendations[0]);
@@ -225,4 +225,4 @@ export default function SuggestionsPage() {
       <SuggestionsPageInner />
     </Suspense>
   );
-} 
+}

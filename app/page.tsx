@@ -30,8 +30,8 @@ export default function LandingPage() {
                 </div>
               </div>
               <p className="mt-6 text-lg leading-8 text-gray-300 max-w-2xl mx-auto">
-                Discover your next favorite book with AI-powered recommendations. 
-                Tell us what you love to read, and we'll find books that perfectly 
+                Discover your next favorite book with AI-powered recommendations.
+                Tell us what you love to read, and we'll find books that perfectly
                 match your taste using advanced AI and real-time web insights.
               </p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
@@ -72,7 +72,7 @@ export default function LandingPage() {
               Everything you need to find your next great read
             </p>
             <p className="mt-6 text-lg leading-8 text-gray-300">
-              Our AI analyzes current book trends, reader reviews, and literary connections 
+              Our AI analyzes current book trends, reader reviews, and literary connections
               to suggest books you'll truly love.
             </p>
           </div>
@@ -85,7 +85,7 @@ export default function LandingPage() {
                 </dt>
                 <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-300">
                   <p className="flex-auto">
-                    Our advanced AI analyzes your reading preferences and searches 
+                    Our advanced AI analyzes your reading preferences and searches
                     the web for the latest book discussions, reviews, and recommendations.
                   </p>
                 </dd>
@@ -97,7 +97,7 @@ export default function LandingPage() {
                 </dt>
                 <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-300">
                   <p className="flex-auto">
-                    Get five carefully curated book suggestions that match your taste, 
+                    Get five carefully curated book suggestions that match your taste,
                     complete with detailed information and cover images.
                   </p>
                 </dd>
@@ -109,7 +109,7 @@ export default function LandingPage() {
                 </dt>
                 <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-300">
                   <p className="flex-auto">
-                    Recommendations based on real-time community discussions, 
+                    Recommendations based on real-time community discussions,
                     book blogs, and current literary conversations.
                   </p>
                 </dd>
@@ -137,4 +137,4 @@ export default function LandingPage() {
       </footer>
     </div>
   );
-} 
+}
