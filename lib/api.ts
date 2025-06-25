@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Book, SearchResponse, BookDetails, AIRecommendation } from '@/types';
+import { Book, SearchResponse, BookDetails, AIRecommendation, LibraryEntry } from '@/types';
 import { transformBookToDetails } from './utils';
 
 const OPENLIBRARY_BASE_URL = 'https://openlibrary.org';
@@ -105,6 +105,44 @@ export class AIService {
     } catch (error) {
       console.error('Error getting AI recommendations:', error);
       throw new Error('Failed to get recommendations');
+    }
+  }
+}
+
+export class LibraryAPI {
+  static async getLibrary(): Promise<LibraryEntry[]> {
+    try {
+      const res = await axios.get('/api/library');
+      return res.data.entries as LibraryEntry[];
+    } catch (err) {
+      console.error('Failed to fetch library', err);
+      return [];
+    }
+  }
+
+  static async addToLibrary(book: BookDetails, read: boolean): Promise<boolean> {
+    try {
+      await axios.post('/api/library', { book, read });
+      return true;
+    } catch (err) {
+      console.error('Failed to add to library', err);
+      return false;
+    }
+  }
+
+  static async updateReadStatus(key: string, read: boolean) {
+    try {
+      await axios.patch('/api/library', { key, read });
+    } catch (err) {
+      console.error('Failed to update read status', err);
+    }
+  }
+
+  static async deleteFromLibrary(key: string) {
+    try {
+      await axios.delete('/api/library', { params: { key } });
+    } catch (err) {
+      console.error('Failed to delete from library', err);
     }
   }
 }

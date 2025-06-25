@@ -48,3 +48,13 @@ export interface LoadingState {
   isLoading: boolean;
   error?: string;
 }
+
+export interface LibraryEntry {
+  id: string;
+  key: string;
+  title: string;
+  authors: string;
+  coverUrl?: string;
+  read: boolean;
+  createdAt: string;
+}

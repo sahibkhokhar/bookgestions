@@ -4,8 +4,8 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { BookOpen, ArrowLeft, Sparkles } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { BookDetails } from '@/types';
-import { AIService, BookAPI } from '@/lib/api';
+import { BookDetails, LibraryEntry } from '@/types';
+import { AIService, BookAPI, LibraryAPI } from '@/lib/api';
 import BookCard from '@/components/BookCard';
 import BookPreview from '@/components/BookPreview';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -17,6 +17,7 @@ function SuggestionsPageInner() {
   const [selectedBooks, setSelectedBooks] = useState<BookDetails[]>([]);
   const [recommendations, setRecommendations] = useState<BookDetails[]>([]);
   const [previewBook, setPreviewBook] = useState<BookDetails | null>(null);
+  const [library, setLibrary] = useState<LibraryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,13 +53,17 @@ function SuggestionsPageInner() {
 
         setSelectedBooks(validBooks);
 
+        // Fetch user's library to mark ownership
+        const libEntries = await LibraryAPI.getLibrary();
+        setLibrary(libEntries);
+
         // Get AI recommendations
-        const recommendations = await AIService.getRecommendations(validBooks);
-        setRecommendations(recommendations);
+        const recommendationsData = await AIService.getRecommendations(validBooks);
+        setRecommendations(recommendationsData);
 
         // Set first recommendation as preview
-        if (recommendations.length > 0) {
-          setPreviewBook(recommendations[0]);
+        if (recommendationsData.length > 0) {
+          setPreviewBook(recommendationsData[0]);
         }
 
         setLoading(false);
@@ -75,6 +80,12 @@ function SuggestionsPageInner() {
   const handleBackToSearch = () => {
     router.push('/search');
   };
+
+  // Helper to check ownership
+  const isOwned = (key: string) => library.some((e) => e.key === key);
+
+  // Helper to find read status
+  const getReadStatus = (key: string) => library.find((e) => e.key === key)?.read;
 
   if (status === 'loading') {
     return (
@@ -172,6 +183,8 @@ function SuggestionsPageInner() {
                   book={book}
                   onPreview={setPreviewBook}
                   size="small"
+                  owned={isOwned(book.key)}
+                  read={isOwned(book.key) ? getReadStatus(book.key) : undefined}
                 />
               ))}
             </div>
@@ -207,6 +220,8 @@ function SuggestionsPageInner() {
                       onPreview={setPreviewBook}
                       isSelected={previewBook?.key === book.key}
                       size="small"
+                      owned={isOwned(book.key)}
+                      read={isOwned(book.key) ? getReadStatus(book.key) : undefined}
                     />
                   ))}
                 </div>

@@ -1,15 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, BookOpen, ArrowLeft, LogOut } from 'lucide-react';
-import { BookDetails } from '@/types';
+import { Search } from 'lucide-react';
+import { BookDetails, LibraryEntry } from '@/types';
 import { useBookSearch } from '@/hooks/useBookSearch';
 import { useUserSelection } from '@/hooks/useUserSelection';
 import BookCard from '@/components/BookCard';
 import BookPreview from '@/components/BookPreview';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import AppHeader from '@/components/AppHeader';
+import { LibraryAPI } from '@/lib/api';
 
 export default function SearchPage() {
   const { data: session, status } = useSession();
@@ -24,6 +26,14 @@ export default function SearchPage() {
   const { query, results, loading, updateQuery } = useBookSearch();
   const { selectedBooks, addBook, removeBook, isBookSelected, hasSelection } = useUserSelection();
   const [previewBook, setPreviewBook] = useState<BookDetails | null>(null);
+  const [library, setLibrary] = useState<LibraryEntry[]>([]);
+
+  // fetch library once authenticated
+  useEffect(() => {
+    if (status === 'authenticated') {
+      LibraryAPI.getLibrary().then(setLibrary).catch(console.error);
+    }
+  }, [status]);
 
   if (status === 'loading') {
     return (
@@ -44,39 +54,16 @@ export default function SearchPage() {
     window.location.href = '/';
   };
 
+  // helper funcs
+  const isOwned = (key: string) => library.some((e) => e.key === key);
+  const getReadStatus = (key: string) => library.find((e) => e.key === key)?.read;
+
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700 px-4 lg:px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 lg:space-x-4">
-            <button
-              onClick={handleBackToLanding}
-              className="flex items-center space-x-1 lg:space-x-2 text-gray-400 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4 lg:w-5 lg:h-5" />
-              <span className="hidden sm:inline">Back</span>
-            </button>
-            <div className="flex items-center space-x-2">
-              <BookOpen className="w-6 h-6 lg:w-8 lg:h-8 text-primary-500" />
-              <h1 className="text-xl lg:text-2xl font-bold text-white">Bookgestions</h1>
-            </div>
-          </div>
-          <div className="text-xs lg:text-sm text-gray-400 hidden md:flex items-center space-x-4">
-            <span className="hidden lg:inline">Find books you love, get AI recommendations</span>
-            <button
-              onClick={() => signOut({ callbackUrl: '/' })}
-              className="flex items-center space-x-1 text-gray-400 hover:text-white transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Sign Out</span>
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-900 flex flex-col">
+      <AppHeader />
 
       {/* Main Content - Three Column Layout (Responsive) */}
-      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)]">
+      <div className="flex flex-col lg:flex-row flex-1">
         {/* Column 1: Search & Results */}
         <div className="w-full lg:w-1/3 border-r-0 lg:border-r border-gray-700 border-b lg:border-b-0 flex flex-col lg:h-[calc(100vh-80px)]">
           <div className="p-4 lg:p-6 border-b border-gray-700">
@@ -120,6 +107,8 @@ export default function SearchPage() {
                     isSelected={isBookSelected(book.key)}
                     showAddButton={true}
                     size="small"
+                    owned={isOwned(book.key)}
+                    read={isOwned(book.key) ? getReadStatus(book.key) : undefined}
                   />
                 ))}
               </div>
@@ -143,7 +132,7 @@ export default function SearchPage() {
           <div className="flex-1 overflow-y-auto p-4 lg:p-6 min-h-[40vh] lg:min-h-0">
             {selectedBooks.length === 0 ? (
               <div className="text-center py-8 text-gray-400">
-                <BookOpen className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+                <Search className="w-12 h-12 mx-auto mb-4 text-gray-600" />
                 <p>No books selected yet</p>
                 <p className="text-sm mt-2">Search and add books to get started</p>
               </div>
@@ -157,6 +146,8 @@ export default function SearchPage() {
                     onPreview={setPreviewBook}
                     showRemoveButton={true}
                     size="small"
+                    owned={isOwned(book.key)}
+                    read={isOwned(book.key) ? getReadStatus(book.key) : undefined}
                   />
                 ))}
               </div>
@@ -176,7 +167,7 @@ export default function SearchPage() {
             ) : (
               <div className="flex items-center justify-center h-full text-gray-400">
                 <div className="text-center">
-                  <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                  <Search className="w-16 h-16 mx-auto mb-4 text-gray-600" />
                   <p>Select a book to preview</p>
                 </div>
               </div>

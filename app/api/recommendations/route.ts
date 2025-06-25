@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { AIRecommendation } from '@/types';
 import OpenAI from 'openai';
+import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../auth/[...nextauth]/route';
 
 interface BookInput {
   title: string;
@@ -28,6 +31,30 @@ export async function POST(request: Request) {
       );
     }
 
+    // Fetch user's read books (to avoid recommending them again)
+    const session = await getServerSession(authOptions);
+    let readBooksDescriptions = '';
+
+    if (session?.user?.email) {
+      try {
+        const readBooks = await prisma.libraryEntry.findMany({
+          where: {
+            user: { email: session.user.email },
+            read: true,
+          },
+          select: { title: true, authors: true },
+        });
+
+        if (readBooks.length > 0) {
+          readBooksDescriptions = readBooks
+            .map((b: { title: string; authors: string }, idx: number) => `${idx + 1}. "${b.title}" by ${b.authors}`)
+            .join('\n');
+        }
+      } catch (err) {
+        console.error('Failed to fetch read books:', err);
+      }
+    }
+
     // Create a detailed prompt for the AI
     const bookDescriptions = body.books.map((book, index) =>
       `${index + 1}. "${book.title}" by ${book.authors.join(', ')}${book.publishYear ? ` (${book.publishYear})` : ''}`
@@ -38,6 +65,8 @@ export async function POST(request: Request) {
 Based on the following books that a user has selected as their preferences:
 
 ${bookDescriptions}
+
+${readBooksDescriptions ? `The user has already read the following books. Do not recommend these titles again:\n${readBooksDescriptions}\n` : ''}
 
 Please analyze these books and recommend 5 similar books that this reader would likely enjoy. Consider:
 - Similar genres, themes, and writing styles

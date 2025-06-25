@@ -5,10 +5,25 @@ services:
     image: ghcr.io/sahibkhokhar/bookgestions:latest
     container_name: bookgestions-app
     restart: unless-stopped
+    depends_on:
+      - postgres
     ports:
       - "3020:3000"
     env_file:
       - ./.env
+
+  postgres:
+    image: postgres:15
+    container_name: bookgestions-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: bookgestions
+      POSTGRES_PASSWORD: bookgestions
+      POSTGRES_DB: bookgestions
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 
 secrets:
   openai_api_key:
@@ -17,3 +32,6 @@ secrets:
 networks:
   default:
     name: bookgestions-net
+
+volumes:
+  postgres-data:

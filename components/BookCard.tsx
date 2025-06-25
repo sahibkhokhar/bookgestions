@@ -14,6 +14,10 @@ interface BookCardProps {
   showAddButton?: boolean;
   showRemoveButton?: boolean;
   size?: 'small' | 'medium' | 'large';
+  read?: boolean;
+  overlayRemove?: boolean;
+  onToggleRead?: () => void;
+  owned?: boolean;
 }
 
 export default function BookCard({
@@ -25,6 +29,10 @@ export default function BookCard({
   showAddButton = false,
   showRemoveButton = false,
   size = 'medium',
+  read,
+  overlayRemove = false,
+  onToggleRead,
+  owned = false,
 }: BookCardProps) {
   const sizeClasses = {
     small: 'w-full max-w-xs',
@@ -64,7 +72,53 @@ export default function BookCard({
         isSelected ? 'ring-2 ring-primary-500' : ''
       }`}
       onClick={handleClick}
+      style={{ position: 'relative' }}
     >
+      {/* Owned badge (top-left) */}
+      {owned && !overlayRemove && (
+        <span className="absolute top-2 left-2 text-xs font-semibold px-2 py-1 rounded-full bg-blue-600 text-white">
+          Owned
+        </span>
+      )}
+
+      {/* Overlay Remove Button */}
+      {overlayRemove && onRemove && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(book.key);
+          }}
+          className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center"
+          title="Remove from library"
+        >
+          ×
+        </button>
+      )}
+
+      {read !== undefined && (
+        onToggleRead ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleRead();
+            }}
+            className={`absolute bottom-2 right-2 text-xs font-semibold px-2 py-1 rounded-full focus:outline-none ${
+              read ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-yellow-600 hover:bg-yellow-700 text-white'
+            }`}
+            title="Toggle read status"
+          >
+            {read ? 'Read' : 'Unread'}
+          </button>
+        ) : (
+          <span
+            className={`absolute bottom-2 right-2 text-xs font-semibold px-2 py-1 rounded-full ${
+              read ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'
+            }`}
+          >
+            {read ? 'Read' : 'Unread'}
+          </span>
+        )
+      )}
       <div className="p-4">
         <div className="flex space-x-4">
           {/* Book Cover */}
@@ -92,7 +146,7 @@ export default function BookCard({
           </div>
 
           {/* Book Details */}
-          <div className="flex-1 min-w-0">
+          <div className={`flex-1 min-w-0 ${overlayRemove ? 'pr-6' : ''}`}>
             <div className="flex justify-between items-start">
               <div className="flex-1 min-w-0">
                 <h3 className="text-sm font-semibold text-white leading-tight mb-1">
