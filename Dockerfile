@@ -46,7 +46,10 @@ COPY --from=builder /app/package.json ./package.json
 # Install production dependencies only
 COPY --from=deps /app/node_modules ./node_modules
 
+# Copy Prisma schema and migrations
+COPY --from=builder /app/prisma ./prisma
+
 EXPOSE 3000
 
 # Run database migrations, then start the app
-CMD ["sh", "-c", "npx prisma migrate deploy && pnpm start"]
+CMD ["sh", "-c", "npx prisma migrate deploy --schema=/app/prisma/schema.prisma && pnpm start"]
