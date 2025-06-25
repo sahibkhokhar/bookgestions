@@ -45,8 +45,8 @@ WORKDIR /app
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package.json ./package.json
 
-# Install production dependencies only
-COPY --from=deps /app/node_modules ./node_modules
+# Copy node_modules from builder stage, which includes the generated prisma client
+COPY --from=builder /app/node_modules ./node_modules
 
 # Copy Prisma schema and migrations
 COPY --from=builder /app/prisma ./prisma
