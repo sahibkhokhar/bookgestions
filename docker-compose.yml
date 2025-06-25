@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   bookgestions:
     image: ghcr.io/sahibkhokhar/bookgestions:latest
