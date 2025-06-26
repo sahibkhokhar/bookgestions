@@ -150,4 +150,4 @@ export async function DELETE(request: Request) {
     console.error('Failed to delete entry:', error);
     return NextResponse.json({ error: 'Failed to delete entry' }, { status: 500 });
   }
-} 
+}

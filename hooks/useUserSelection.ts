@@ -34,4 +34,4 @@ export function useUserSelection() {
     isBookSelected,
     hasSelection: selectedBooks.length > 0,
   };
-} 
+}

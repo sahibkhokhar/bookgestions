@@ -14,4 +14,4 @@ if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prismaInstance;
 }
 
-export const prisma = prismaInstance; 
+export const prisma = prismaInstance;

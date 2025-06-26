@@ -115,4 +115,4 @@ export default function BookPreview({ book }: BookPreviewProps) {
       </div>
     </div>
   );
-} 
+}
