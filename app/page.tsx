@@ -25,7 +25,7 @@ export default function LandingPage() {
                 <div className="flex items-center space-x-2">
                   <BookOpen className="h-12 w-12 text-primary-500" />
                   <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
-                    Bookgestions
+                    Bookgestions!
                   </h1>
                 </div>
               </div>
